@@ -28,7 +28,7 @@ function terbilang($angka) {
         $terbilang = terbilang($angka/1000000000) . " milyar" . terbilang(fmod($angka,1000000000));
     } else if ($angka < 1000000000000000) {
         $terbilang = terbilang($angka/1000000000000) . " trilyun" . terbilang(fmod($angka,1000000000000));
-    }     
+    }
     return $terbilang;
 };
 
@@ -54,4 +54,9 @@ function tanggal_indonesia($tgl, $tampil_hari = true ) {
     }
 
     return $text;
+}
+
+function tambah_nol_didepan($value, $treshold = null)
+{
+    return sprintf("%0" . $treshold . "s", $value);
 }
