@@ -34,15 +34,6 @@ To change the configuration, copy the config file to your config folder and enab
 You can create a new DOMPDF instance and load a HTML string, file or view name. You can save it to a file, or stream (show in browser) or download.
 
 ```php
-    use Barryvdh\DomPDF\Facade\Pdf;
-
-    $pdf = Pdf::loadView('pdf.invoice', $data);
-    return $pdf->download('invoice.pdf');
-```
-
-or use the App container:
-
-```php
     $pdf = App::make('dompdf.wrapper');
     $pdf->loadHTML('<h1>Test</h1>');
     return $pdf->stream();
@@ -50,16 +41,23 @@ or use the App container:
 
 Or use the facade:
 
+```php
+    use Barryvdh\DomPDF\Facade\Pdf;
+
+    $pdf = PDF::loadView('pdf.invoice', $data);
+    return $pdf->download('invoice.pdf');
+```
+
 You can chain the methods:
 
 ```php
-    return Pdf::loadFile(public_path().'/myfile.html')->save('/path-to/my_stored_file.pdf')->stream('download.pdf');
+    return PDF::loadFile(public_path().'/myfile.html')->save('/path-to/my_stored_file.pdf')->stream('download.pdf');
 ```
 
 You can change the orientation and paper size, and hide or show errors (by default, errors are shown when debug is on)
 
 ```php
-    Pdf::loadHTML($html)->setPaper('a4', 'landscape')->setWarnings(false)->save('myfile.pdf')
+    PDF::loadHTML($html)->setPaper('a4', 'landscape')->setWarnings(false)->save('myfile.pdf')
 ```
 
 If you need the output as a string, you can get the rendered PDF with the output() function, so you can save/output it yourself.
@@ -75,14 +73,14 @@ The defaults configuration settings are set in `config/dompdf.php`. Copy this fi
 
 You can still alter the dompdf options in your code before generating the pdf using this command:
 ```php
-    Pdf::setOption(['dpi' => 150, 'defaultFont' => 'sans-serif']);
+    PDF::setOptions(['dpi' => 150, 'defaultFont' => 'sans-serif']);
 ```
     
 Available options and their defaults:
 * __rootDir__: "{app_directory}/vendor/dompdf/dompdf"
 * __tempDir__: "/tmp" _(available in config/dompdf.php)_
-* __fontDir__: "{app_directory}/storage/fonts" _(available in config/dompdf.php)_
-* __fontCache__: "{app_directory}/storage/fonts" _(available in config/dompdf.php)_
+* __fontDir__: "{app_directory}/storage/fonts/" _(available in config/dompdf.php)_
+* __fontCache__: "{app_directory}/storage/fonts/" _(available in config/dompdf.php)_
 * __chroot__: "{app_directory}" _(available in config/dompdf.php)_
 * __logOutputFile__: "/tmp/log.htm"
 * __defaultMediaType__: "screen" _(available in config/dompdf.php)_

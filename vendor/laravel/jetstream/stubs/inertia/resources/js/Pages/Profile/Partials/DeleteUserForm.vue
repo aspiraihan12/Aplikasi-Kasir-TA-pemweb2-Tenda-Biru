@@ -1,12 +1,12 @@
 <script setup>
 import { ref } from 'vue';
-import { useForm } from '@inertiajs/vue3';
-import ActionSection from '@/Components/ActionSection.vue';
-import DangerButton from '@/Components/DangerButton.vue';
-import DialogModal from '@/Components/DialogModal.vue';
-import InputError from '@/Components/InputError.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import { useForm } from '@inertiajs/inertia-vue3';
+import JetActionSection from '@/Jetstream/ActionSection.vue';
+import JetDialogModal from '@/Jetstream/DialogModal.vue';
+import JetDangerButton from '@/Jetstream/DangerButton.vue';
+import JetInput from '@/Jetstream/Input.vue';
+import JetInputError from '@/Jetstream/InputError.vue';
+import JetSecondaryButton from '@/Jetstream/SecondaryButton.vue';
 
 const confirmingUserDeletion = ref(false);
 const passwordInput = ref(null);
@@ -38,7 +38,7 @@ const closeModal = () => {
 </script>
 
 <template>
-    <ActionSection>
+    <JetActionSection>
         <template #title>
             Delete Account
         </template>
@@ -48,18 +48,18 @@ const closeModal = () => {
         </template>
 
         <template #content>
-            <div class="max-w-xl text-sm text-gray-600 dark:text-gray-400">
+            <div class="max-w-xl text-sm text-gray-600">
                 Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.
             </div>
 
             <div class="mt-5">
-                <DangerButton @click="confirmUserDeletion">
+                <JetDangerButton @click="confirmUserDeletion">
                     Delete Account
-                </DangerButton>
+                </JetDangerButton>
             </div>
 
             <!-- Delete Account Confirmation Modal -->
-            <DialogModal :show="confirmingUserDeletion" @close="closeModal">
+            <JetDialogModal :show="confirmingUserDeletion" @close="closeModal">
                 <template #title>
                     Delete Account
                 </template>
@@ -68,35 +68,34 @@ const closeModal = () => {
                     Are you sure you want to delete your account? Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.
 
                     <div class="mt-4">
-                        <TextInput
+                        <JetInput
                             ref="passwordInput"
                             v-model="form.password"
                             type="password"
                             class="mt-1 block w-3/4"
                             placeholder="Password"
-                            autocomplete="current-password"
                             @keyup.enter="deleteUser"
                         />
 
-                        <InputError :message="form.errors.password" class="mt-2" />
+                        <JetInputError :message="form.errors.password" class="mt-2" />
                     </div>
                 </template>
 
                 <template #footer>
-                    <SecondaryButton @click="closeModal">
+                    <JetSecondaryButton @click="closeModal">
                         Cancel
-                    </SecondaryButton>
+                    </JetSecondaryButton>
 
-                    <DangerButton
+                    <JetDangerButton
                         class="ml-3"
                         :class="{ 'opacity-25': form.processing }"
                         :disabled="form.processing"
                         @click="deleteUser"
                     >
                         Delete Account
-                    </DangerButton>
+                    </JetDangerButton>
                 </template>
-            </DialogModal>
+            </JetDialogModal>
         </template>
-    </ActionSection>
+    </JetActionSection>
 </template>

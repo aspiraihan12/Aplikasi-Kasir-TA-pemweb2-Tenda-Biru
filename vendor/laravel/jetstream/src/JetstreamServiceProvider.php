@@ -6,6 +6,7 @@ use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\Compilers\BladeCompiler;
@@ -66,14 +67,16 @@ class JetstreamServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'jetstream');
+
         Fortify::viewPrefix('auth.');
 
+        $this->configureComponents();
         $this->configurePublishing();
         $this->configureRoutes();
         $this->configureCommands();
 
         RedirectResponse::macro('banner', function ($message) {
-            /** @var \Illuminate\Http\RedirectResponse $this */
             return $this->with('flash', [
                 'bannerStyle' => 'success',
                 'banner' => $message,
@@ -81,7 +84,6 @@ class JetstreamServiceProvider extends ServiceProvider
         });
 
         RedirectResponse::macro('dangerBanner', function ($message) {
-            /** @var \Illuminate\Http\RedirectResponse $this */
             return $this->with('flash', [
                 'bannerStyle' => 'danger',
                 'banner' => $message,
@@ -91,6 +93,57 @@ class JetstreamServiceProvider extends ServiceProvider
         if (config('jetstream.stack') === 'inertia') {
             $this->bootInertia();
         }
+    }
+
+    /**
+     * Configure the Jetstream Blade components.
+     *
+     * @return void
+     */
+    protected function configureComponents()
+    {
+        $this->callAfterResolving(BladeCompiler::class, function () {
+            $this->registerComponent('action-message');
+            $this->registerComponent('action-section');
+            $this->registerComponent('application-logo');
+            $this->registerComponent('application-mark');
+            $this->registerComponent('authentication-card');
+            $this->registerComponent('authentication-card-logo');
+            $this->registerComponent('banner');
+            $this->registerComponent('button');
+            $this->registerComponent('confirmation-modal');
+            $this->registerComponent('confirms-password');
+            $this->registerComponent('danger-button');
+            $this->registerComponent('dialog-modal');
+            $this->registerComponent('dropdown');
+            $this->registerComponent('dropdown-link');
+            $this->registerComponent('form-section');
+            $this->registerComponent('input');
+            $this->registerComponent('checkbox');
+            $this->registerComponent('input-error');
+            $this->registerComponent('label');
+            $this->registerComponent('modal');
+            $this->registerComponent('nav-link');
+            $this->registerComponent('responsive-nav-link');
+            $this->registerComponent('responsive-switchable-team');
+            $this->registerComponent('secondary-button');
+            $this->registerComponent('section-border');
+            $this->registerComponent('section-title');
+            $this->registerComponent('switchable-team');
+            $this->registerComponent('validation-errors');
+            $this->registerComponent('welcome');
+        });
+    }
+
+    /**
+     * Register the given component.
+     *
+     * @param  string  $component
+     * @return void
+     */
+    protected function registerComponent(string $component)
+    {
+        Blade::component('jetstream::components.'.$component, 'jet-'.$component);
     }
 
     /**
@@ -109,6 +162,10 @@ class JetstreamServiceProvider extends ServiceProvider
         ], 'jetstream-config');
 
         $this->publishes([
+            __DIR__.'/../resources/views' => resource_path('views/vendor/jetstream'),
+        ], 'jetstream-views');
+
+        $this->publishes([
             __DIR__.'/../database/migrations/2014_10_12_000000_create_users_table.php' => database_path('migrations/2014_10_12_000000_create_users_table.php'),
         ], 'jetstream-migrations');
 
@@ -124,9 +181,10 @@ class JetstreamServiceProvider extends ServiceProvider
 
         $this->publishes([
             __DIR__.'/../stubs/inertia/resources/js/Pages/Auth' => resource_path('js/Pages/Auth'),
-            __DIR__.'/../stubs/inertia/resources/js/Components/AuthenticationCard.vue' => resource_path('js/Components/AuthenticationCard.vue'),
-            __DIR__.'/../stubs/inertia/resources/js/Components/AuthenticationCardLogo.vue' => resource_path('js/Components/AuthenticationCardLogo.vue'),
-            __DIR__.'/../stubs/inertia/resources/js/Components/Checkbox.vue' => resource_path('js/Components/Checkbox.vue'),
+            __DIR__.'/../stubs/inertia/resources/js/Jetstream/AuthenticationCard.vue' => resource_path('js/Jetstream/AuthenticationCard.vue'),
+            __DIR__.'/../stubs/inertia/resources/js/Jetstream/AuthenticationCardLogo.vue' => resource_path('js/Jetstream/AuthenticationCardLogo.vue'),
+            __DIR__.'/../stubs/inertia/resources/js/Jetstream/Checkbox.vue' => resource_path('js/Jetstream/Checkbox.vue'),
+            __DIR__.'/../stubs/inertia/resources/js/Jetstream/ValidationErrors.vue' => resource_path('js/Jetstream/ValidationErrors.vue'),
         ], 'jetstream-inertia-auth-pages');
     }
 

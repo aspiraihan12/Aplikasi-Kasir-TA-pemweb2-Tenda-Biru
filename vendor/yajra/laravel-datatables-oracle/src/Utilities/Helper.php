@@ -2,13 +2,10 @@
 
 namespace Yajra\DataTables\Utilities;
 
-use Closure;
 use DateTime;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use ReflectionFunction;
-use ReflectionMethod;
 
 class Helper
 {
@@ -26,11 +23,11 @@ class Helper
         }
 
         $count = 0;
-        $last = $array;
+        $last  = $array;
         $first = [];
         foreach ($array as $key => $value) {
             if ($count == $item['order']) {
-                continue;
+                return array_merge($first, [$item['name'] => $item['content']], $last);
             }
 
             unset($last[$key]);
@@ -38,8 +35,6 @@ class Helper
 
             $count++;
         }
-
-        return array_merge($first, [$item['name'] => $item['content']], $last);
     }
 
     /**
@@ -55,53 +50,22 @@ class Helper
     }
 
     /**
-     * Gets the parameter of a callable thing (from is_callable) and returns it's arguments using reflection.
-     *
-     * @param  callable  $callable
-     * @return \ReflectionParameter[]
-     *
-     * @throws \ReflectionException
-     * @throws \InvalidArgumentException
-     */
-    private static function reflectCallableParameters($callable)
-    {
-        /*
-        loosely after https://github.com/technically-php/callable-reflection/blob/main/src/CallableReflection.php#L72-L86.
-        Licence is compatible, both project use MIT
-        */
-        if ($callable instanceof Closure) {
-            $reflection = new ReflectionFunction($callable);
-        } elseif (is_string($callable) && function_exists($callable)) {
-            $reflection = new ReflectionFunction($callable);
-        } elseif (is_string($callable) && str_contains($callable, '::')) {
-            $reflection = new ReflectionMethod($callable);
-        } elseif (is_object($callable) && method_exists($callable, '__invoke')) {
-            $reflection = new ReflectionMethod($callable, '__invoke');
-        } else {
-            throw new \InvalidArgumentException('argument is not callable or the code is wrong');
-        }
-
-        return $reflection->getParameters();
-    }
-
-    /**
      * Determines if content is callable or blade string, processes and returns.
      *
      * @param  mixed  $content  Pre-processed content
      * @param  array  $data  data to use with blade template
-     * @param  array|object  $param  parameter to call with callable
+     * @param  mixed  $param  parameter to call with callable
      * @return mixed
-     *
-     * @throws \ReflectionException
      */
-    public static function compileContent($content, array $data, array|object $param)
+    public static function compileContent($content, array $data, $param)
     {
         if (is_string($content)) {
             return static::compileBlade($content, static::getMixedValue($data, $param));
         }
 
         if (is_callable($content)) {
-            $arguments = self::reflectCallableParameters($content);
+            $reflection = new \ReflectionFunction($content);
+            $arguments  = $reflection->getParameters();
 
             if (count($arguments) > 0) {
                 return app()->call($content, [$arguments[0]->name => $param]);
@@ -118,17 +82,18 @@ class Helper
      *
      * @param  string  $str
      * @param  array  $data
-     * @return false|string
+     * @return mixed
+     *
+     * @throws \Exception
      */
     public static function compileBlade($str, $data = [])
     {
         if (view()->exists($str)) {
-            /** @var view-string $str */
             return view($str, $data)->render();
         }
 
         ob_start() && extract($data, EXTR_SKIP);
-        eval('?>'.app('blade.compiler')->compileString($str));
+        eval('?>' . app('blade.compiler')->compileString($str));
         $str = ob_get_contents();
         ob_end_clean();
 
@@ -139,10 +104,10 @@ class Helper
      * Get a mixed value of custom data and the parameters.
      *
      * @param  array  $data
-     * @param  array|object  $param
+     * @param  mixed  $param
      * @return array
      */
-    public static function getMixedValue(array $data, array|object $param)
+    public static function getMixedValue(array $data, $param)
     {
         $casted = self::castToArray($param);
 
@@ -160,16 +125,22 @@ class Helper
     /**
      * Cast the parameter into an array.
      *
-     * @param  array|object  $param
+     * @param  mixed  $param
      * @return array
      */
-    public static function castToArray(array|object $param): array
+    public static function castToArray($param)
     {
+        if ($param instanceof \stdClass) {
+            $param = (array) $param;
+
+            return $param;
+        }
+
         if ($param instanceof Arrayable) {
             return $param->toArray();
         }
 
-        return (array) $param;
+        return $param;
     }
 
     /**
@@ -181,7 +152,7 @@ class Helper
     public static function getOrMethod($method)
     {
         if (! Str::contains(Str::lower($method), 'or')) {
-            return 'or'.ucfirst($method);
+            return 'or' . ucfirst($method);
         }
 
         return $method;
@@ -196,10 +167,8 @@ class Helper
      */
     public static function convertToArray($row, $filters = [])
     {
-        $row = is_object($row) && method_exists($row, 'makeHidden') ? $row->makeHidden(Arr::get($filters, 'hidden',
-            [])) : $row;
-        $row = is_object($row) && method_exists($row, 'makeVisible') ? $row->makeVisible(Arr::get($filters, 'visible',
-            [])) : $row;
+        $row  = is_object($row) && method_exists($row, 'makeHidden') ? $row->makeHidden(Arr::get($filters, 'hidden', [])) : $row;
+        $row  = is_object($row) && method_exists($row, 'makeVisible') ? $row->makeVisible(Arr::get($filters, 'visible', [])) : $row;
         $data = $row instanceof Arrayable ? $row->toArray() : (array) $row;
 
         foreach ($data as &$value) {
@@ -227,7 +196,7 @@ class Helper
     /**
      * Transform row data into an array.
      *
-     * @param  array  $row
+     * @param  mixed  $row
      * @return array
      */
     protected static function transformRow($row)
@@ -236,8 +205,8 @@ class Helper
             if ($value instanceof DateTime) {
                 $row[$key] = $value->format('Y-m-d H:i:s');
             } else {
-                if (is_object($value) && method_exists($value, '__toString')) {
-                    $row[$key] = $value->__toString();
+                if (is_object($value)) {
+                    $row[$key] = (string) $value;
                 } else {
                     $row[$key] = $value;
                 }
@@ -304,7 +273,7 @@ class Helper
     {
         $matches = explode(' as ', Str::lower($str));
 
-        if (count($matches) > 1) {
+        if (! empty($matches)) {
             if ($wantsAlias) {
                 return array_pop($matches);
             }
@@ -341,12 +310,12 @@ class Helper
      */
     public static function wildcardString($str, $wildcard, $lowercase = true)
     {
-        $wild = $wildcard;
-        $chars = (array) preg_split('//u', $str, -1, PREG_SPLIT_NO_EMPTY);
+        $wild  = $wildcard;
+        $chars = preg_split('//u', $str, -1, PREG_SPLIT_NO_EMPTY);
 
         if (count($chars) > 0) {
             foreach ($chars as $char) {
-                $wild .= $char.$wildcard;
+                $wild .= $char . $wildcard;
             }
         }
 
@@ -355,44 +324,5 @@ class Helper
         }
 
         return $wild;
-    }
-
-    public static function toJsonScript(array $parameters, int $options = 0): string
-    {
-        $values = [];
-        $replacements = [];
-
-        foreach (Arr::dot($parameters) as $key => $value) {
-            if (self::isJavascript($value, $key)) {
-                $values[] = trim($value);
-                Arr::set($parameters, $key, '%'.$key.'%');
-                $replacements[] = '"%'.$key.'%"';
-            }
-        }
-
-        $new = [];
-        foreach ($parameters as $key => $value) {
-            Arr::set($new, $key, $value);
-        }
-
-        $json = (string) json_encode($new, $options);
-
-        return str_replace($replacements, $values, $json);
-    }
-
-    public static function isJavascript(string|array|object|null $value, string $key): bool
-    {
-        if (empty($value) || is_array($value) || is_object($value)) {
-            return false;
-        }
-
-        /** @var array $callbacks */
-        $callbacks = config('datatables.callback', ['$', '$.', 'function']);
-
-        if (Str::startsWith($key, 'language.')) {
-            return false;
-        }
-
-        return Str::startsWith(trim($value), $callbacks) || Str::contains($key, ['editor', 'minDate', 'maxDate']);
     }
 }

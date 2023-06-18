@@ -2,10 +2,13 @@
 
 namespace Laravel\Jetstream\Contracts;
 
-/**
- * @method void delete(\Illuminate\Database\Eloquent\Model $team)
- */
 interface DeletesTeams
 {
-    //
+    /**
+     * Delete the given team.
+     *
+     * @param  mixed  $team
+     * @return void
+     */
+    public function delete($team);
 }

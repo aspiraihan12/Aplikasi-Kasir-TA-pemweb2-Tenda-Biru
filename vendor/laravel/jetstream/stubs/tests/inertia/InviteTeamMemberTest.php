@@ -13,12 +13,10 @@ class InviteTeamMemberTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_team_members_can_be_invited_to_team(): void
+    public function test_team_members_can_be_invited_to_team()
     {
         if (! Features::sendsTeamInvitations()) {
-            $this->markTestSkipped('Team invitations not enabled.');
-
-            return;
+            return $this->markTestSkipped('Team invitations not enabled.');
         }
 
         Mail::fake();
@@ -35,12 +33,10 @@ class InviteTeamMemberTest extends TestCase
         $this->assertCount(1, $user->currentTeam->fresh()->teamInvitations);
     }
 
-    public function test_team_member_invitations_can_be_cancelled(): void
+    public function test_team_member_invitations_can_be_cancelled()
     {
         if (! Features::sendsTeamInvitations()) {
-            $this->markTestSkipped('Team invitations not enabled.');
-
-            return;
+            return $this->markTestSkipped('Team invitations not enabled.');
         }
 
         Mail::fake();

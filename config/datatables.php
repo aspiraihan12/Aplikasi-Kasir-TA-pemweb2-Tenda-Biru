@@ -48,7 +48,7 @@ return [
         'eloquent'   => Yajra\DataTables\EloquentDataTable::class,
         'query'      => Yajra\DataTables\QueryDataTable::class,
         'collection' => Yajra\DataTables\CollectionDataTable::class,
-        'resource' => Yajra\DataTables\ApiResourceDataTable::class,
+        'resource'   => Yajra\DataTables\ApiResourceDataTable::class,
     ],
 
     /*
@@ -100,7 +100,7 @@ return [
         'raw'       => ['action'],
 
         /*
-         * List of columns are forbidden from being searched/sorted.
+         * List of columns are are forbidden from being searched/sorted.
          */
         'blacklist' => ['password', 'remember_token'],
 
@@ -119,9 +119,4 @@ return [
         'options' => 0,
     ],
 
-    /*
-     * Default condition to determine if a parameter is a callback or not.
-     * Callbacks needs to start by those terms, or they will be cast to string.
-     */
-    'callback' => ['$', '$.', 'function'],
 ];

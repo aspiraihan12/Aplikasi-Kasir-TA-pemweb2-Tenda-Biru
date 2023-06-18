@@ -1,13 +1,14 @@
 <script setup>
 import { ref } from 'vue';
-import { Link, router, useForm } from '@inertiajs/vue3';
-import ActionMessage from '@/Components/ActionMessage.vue';
-import FormSection from '@/Components/FormSection.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import { Inertia } from '@inertiajs/inertia';
+import { Link, useForm } from '@inertiajs/inertia-vue3';
+import JetButton from '@/Jetstream/Button.vue';
+import JetFormSection from '@/Jetstream/FormSection.vue';
+import JetInput from '@/Jetstream/Input.vue';
+import JetInputError from '@/Jetstream/InputError.vue';
+import JetLabel from '@/Jetstream/Label.vue';
+import JetActionMessage from '@/Jetstream/ActionMessage.vue';
+import JetSecondaryButton from '@/Jetstream/SecondaryButton.vue';
 
 const props = defineProps({
     user: Object,
@@ -59,7 +60,7 @@ const updatePhotoPreview = () => {
 };
 
 const deletePhoto = () => {
-    router.delete(route('current-user-photo.destroy'), {
+    Inertia.delete(route('current-user-photo.destroy'), {
         preserveScroll: true,
         onSuccess: () => {
             photoPreview.value = null;
@@ -76,7 +77,7 @@ const clearPhotoFileInput = () => {
 </script>
 
 <template>
-    <FormSection @submitted="updateProfileInformation">
+    <JetFormSection @submitted="updateProfileInformation">
         <template #title>
             Profile Information
         </template>
@@ -96,7 +97,7 @@ const clearPhotoFileInput = () => {
                     @change="updatePhotoPreview"
                 >
 
-                <InputLabel for="photo" value="Photo" />
+                <JetLabel for="photo" value="Photo" />
 
                 <!-- Current Profile Photo -->
                 <div v-show="! photoPreview" class="mt-2">
@@ -111,63 +112,62 @@ const clearPhotoFileInput = () => {
                     />
                 </div>
 
-                <SecondaryButton class="mt-2 mr-2" type="button" @click.prevent="selectNewPhoto">
+                <JetSecondaryButton class="mt-2 mr-2" type="button" @click.prevent="selectNewPhoto">
                     Select A New Photo
-                </SecondaryButton>
+                </JetSecondaryButton>
 
-                <SecondaryButton
+                <JetSecondaryButton
                     v-if="user.profile_photo_path"
                     type="button"
                     class="mt-2"
                     @click.prevent="deletePhoto"
                 >
                     Remove Photo
-                </SecondaryButton>
+                </JetSecondaryButton>
 
-                <InputError :message="form.errors.photo" class="mt-2" />
+                <JetInputError :message="form.errors.photo" class="mt-2" />
             </div>
 
             <!-- Name -->
             <div class="col-span-6 sm:col-span-4">
-                <InputLabel for="name" value="Name" />
-                <TextInput
+                <JetLabel for="name" value="Name" />
+                <JetInput
                     id="name"
                     v-model="form.name"
                     type="text"
                     class="mt-1 block w-full"
                     autocomplete="name"
                 />
-                <InputError :message="form.errors.name" class="mt-2" />
+                <JetInputError :message="form.errors.name" class="mt-2" />
             </div>
 
             <!-- Email -->
             <div class="col-span-6 sm:col-span-4">
-                <InputLabel for="email" value="Email" />
-                <TextInput
+                <JetLabel for="email" value="Email" />
+                <JetInput
                     id="email"
                     v-model="form.email"
                     type="email"
                     class="mt-1 block w-full"
-                    autocomplete="username"
                 />
-                <InputError :message="form.errors.email" class="mt-2" />
+                <JetInputError :message="form.errors.email" class="mt-2" />
 
                 <div v-if="$page.props.jetstream.hasEmailVerification && user.email_verified_at === null">
-                    <p class="text-sm mt-2 dark:text-white">
+                    <p class="text-sm mt-2">
                         Your email address is unverified.
 
                         <Link
                             :href="route('verification.send')"
                             method="post"
                             as="button"
-                            class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+                            class="underline text-gray-600 hover:text-gray-900"
                             @click.prevent="sendEmailVerification"
                         >
                             Click here to re-send the verification email.
                         </Link>
                     </p>
 
-                    <div v-show="verificationLinkSent" class="mt-2 font-medium text-sm text-green-600 dark:text-green-400">
+                    <div v-show="verificationLinkSent" class="mt-2 font-medium text-sm text-green-600">
                         A new verification link has been sent to your email address.
                     </div>
                 </div>
@@ -175,13 +175,13 @@ const clearPhotoFileInput = () => {
         </template>
 
         <template #actions>
-            <ActionMessage :on="form.recentlySuccessful" class="mr-3">
+            <JetActionMessage :on="form.recentlySuccessful" class="mr-3">
                 Saved.
-            </ActionMessage>
+            </JetActionMessage>
 
-            <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+            <JetButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                 Save
-            </PrimaryButton>
+            </JetButton>
         </template>
-    </FormSection>
+    </JetFormSection>
 </template>

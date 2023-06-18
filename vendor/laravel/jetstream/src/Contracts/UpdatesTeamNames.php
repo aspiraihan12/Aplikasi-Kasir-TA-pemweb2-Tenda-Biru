@@ -2,10 +2,15 @@
 
 namespace Laravel\Jetstream\Contracts;
 
-/**
- * @method void update(\Illuminate\Foundation\Auth\User $user, \Illuminate\Database\Eloquent\Model $team, array $input)
- */
 interface UpdatesTeamNames
 {
-    //
+    /**
+     * Validate and update the given team's name.
+     *
+     * @param  mixed  $user
+     * @param  mixed  $team
+     * @param  array  $input
+     * @return void
+     */
+    public function update($user, $team, array $input);
 }

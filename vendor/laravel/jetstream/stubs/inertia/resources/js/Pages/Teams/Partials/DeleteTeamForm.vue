@@ -1,17 +1,17 @@
 <script setup>
 import { ref } from 'vue';
-import { useForm } from '@inertiajs/vue3';
-import ActionSection from '@/Components/ActionSection.vue';
-import ConfirmationModal from '@/Components/ConfirmationModal.vue';
-import DangerButton from '@/Components/DangerButton.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
+import { useForm } from '@inertiajs/inertia-vue3';
+import JetActionSection from '@/Jetstream/ActionSection.vue';
+import JetConfirmationModal from '@/Jetstream/ConfirmationModal.vue';
+import JetDangerButton from '@/Jetstream/DangerButton.vue';
+import JetSecondaryButton from '@/Jetstream/SecondaryButton.vue';
 
 const props = defineProps({
     team: Object,
 });
 
 const confirmingTeamDeletion = ref(false);
-const form = useForm({});
+const form = useForm();
 
 const confirmTeamDeletion = () => {
     confirmingTeamDeletion.value = true;
@@ -25,7 +25,7 @@ const deleteTeam = () => {
 </script>
 
 <template>
-    <ActionSection>
+    <JetActionSection>
         <template #title>
             Delete Team
         </template>
@@ -35,18 +35,18 @@ const deleteTeam = () => {
         </template>
 
         <template #content>
-            <div class="max-w-xl text-sm text-gray-600 dark:text-gray-400">
+            <div class="max-w-xl text-sm text-gray-600">
                 Once a team is deleted, all of its resources and data will be permanently deleted. Before deleting this team, please download any data or information regarding this team that you wish to retain.
             </div>
 
             <div class="mt-5">
-                <DangerButton @click="confirmTeamDeletion">
+                <JetDangerButton @click="confirmTeamDeletion">
                     Delete Team
-                </DangerButton>
+                </JetDangerButton>
             </div>
 
             <!-- Delete Team Confirmation Modal -->
-            <ConfirmationModal :show="confirmingTeamDeletion" @close="confirmingTeamDeletion = false">
+            <JetConfirmationModal :show="confirmingTeamDeletion" @close="confirmingTeamDeletion = false">
                 <template #title>
                     Delete Team
                 </template>
@@ -56,20 +56,20 @@ const deleteTeam = () => {
                 </template>
 
                 <template #footer>
-                    <SecondaryButton @click="confirmingTeamDeletion = false">
+                    <JetSecondaryButton @click="confirmingTeamDeletion = false">
                         Cancel
-                    </SecondaryButton>
+                    </JetSecondaryButton>
 
-                    <DangerButton
+                    <JetDangerButton
                         class="ml-3"
                         :class="{ 'opacity-25': form.processing }"
                         :disabled="form.processing"
                         @click="deleteTeam"
                     >
                         Delete Team
-                    </DangerButton>
+                    </JetDangerButton>
                 </template>
-            </ConfirmationModal>
+            </JetConfirmationModal>
         </template>
-    </ActionSection>
+    </JetActionSection>
 </template>

@@ -20,12 +20,15 @@ use RecursiveIterator;
  */
 final class TestSuiteIterator implements RecursiveIterator
 {
-    private int $position = 0;
+    /**
+     * @var int
+     */
+    private $position = 0;
 
     /**
-     * @psalm-var list<Test>
+     * @var Test[]
      */
-    private readonly array $tests;
+    private $tests;
 
     public function __construct(TestSuite $testSuite)
     {
@@ -64,7 +67,7 @@ final class TestSuiteIterator implements RecursiveIterator
     {
         if (!$this->hasChildren()) {
             throw new NoChildTestSuiteException(
-                'The current item is not a TestSuite instance and therefore does not have any children.'
+                'The current item is not a TestSuite instance and therefore does not have any children.',
             );
         }
 

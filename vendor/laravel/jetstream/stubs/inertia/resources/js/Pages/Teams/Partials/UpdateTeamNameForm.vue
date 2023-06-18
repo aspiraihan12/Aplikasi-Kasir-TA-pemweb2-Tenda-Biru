@@ -1,11 +1,11 @@
 <script setup>
-import { useForm } from '@inertiajs/vue3';
-import ActionMessage from '@/Components/ActionMessage.vue';
-import FormSection from '@/Components/FormSection.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import { useForm } from '@inertiajs/inertia-vue3';
+import JetActionMessage from '@/Jetstream/ActionMessage.vue';
+import JetButton from '@/Jetstream/Button.vue';
+import JetFormSection from '@/Jetstream/FormSection.vue';
+import JetInput from '@/Jetstream/Input.vue';
+import JetInputError from '@/Jetstream/InputError.vue';
+import JetLabel from '@/Jetstream/Label.vue';
 
 const props = defineProps({
     team: Object,
@@ -25,7 +25,7 @@ const updateTeamName = () => {
 </script>
 
 <template>
-    <FormSection @submitted="updateTeamName">
+    <JetFormSection @submitted="updateTeamName">
         <template #title>
             Team Name
         </template>
@@ -37,14 +37,14 @@ const updateTeamName = () => {
         <template #form>
             <!-- Team Owner Information -->
             <div class="col-span-6">
-                <InputLabel value="Team Owner" />
+                <JetLabel value="Team Owner" />
 
                 <div class="flex items-center mt-2">
                     <img class="w-12 h-12 rounded-full object-cover" :src="team.owner.profile_photo_url" :alt="team.owner.name">
 
                     <div class="ml-4 leading-tight">
-                        <div class="text-gray-900 dark:text-white">{{ team.owner.name }}</div>
-                        <div class="text-gray-700 dark:text-gray-300 text-sm">
+                        <div>{{ team.owner.name }}</div>
+                        <div class="text-gray-700 text-sm">
                             {{ team.owner.email }}
                         </div>
                     </div>
@@ -53,9 +53,9 @@ const updateTeamName = () => {
 
             <!-- Team Name -->
             <div class="col-span-6 sm:col-span-4">
-                <InputLabel for="name" value="Team Name" />
+                <JetLabel for="name" value="Team Name" />
 
-                <TextInput
+                <JetInput
                     id="name"
                     v-model="form.name"
                     type="text"
@@ -63,18 +63,18 @@ const updateTeamName = () => {
                     :disabled="! permissions.canUpdateTeam"
                 />
 
-                <InputError :message="form.errors.name" class="mt-2" />
+                <JetInputError :message="form.errors.name" class="mt-2" />
             </div>
         </template>
 
         <template v-if="permissions.canUpdateTeam" #actions>
-            <ActionMessage :on="form.recentlySuccessful" class="mr-3">
+            <JetActionMessage :on="form.recentlySuccessful" class="mr-3">
                 Saved.
-            </ActionMessage>
+            </JetActionMessage>
 
-            <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+            <JetButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                 Save
-            </PrimaryButton>
+            </JetButton>
         </template>
-    </FormSection>
+    </JetFormSection>
 </template>
